@@ -3,11 +3,6 @@
 简洁参考示例：在 Arduino IDE 下，把 `OV5647` 实时画面显示到 `10.1-inch DSI` 屏幕。  
 A compact reference sketch for showing live `OV5647` camera preview on a `10.1-inch DSI` display in Arduino IDE.
 
-## Status
-
-- 已实机跑通 / Verified on hardware
-- 不是通用库，是参考示例 / This is a reference sketch, not a generic library
-
 ## Tested Hardware
 
 - 开发板 / Board: `Waveshare ESP32-P4-NANO-D`
@@ -61,8 +56,3 @@ This sketch expects the local `displays` helper library used by the 10.1-inch DS
 [CAM] preview pipeline ready
 [STAT] captured=16 drawn=16 ready=0
 ```
-
-## Notes
-
-- 当前代码按这套硬件组合写死 / This code is tuned for this exact hardware combination.
-- 如果你要公开发布，建议补充接线图、依赖来源和许可证说明 / For public release, add wiring notes, dependency sources, and license details.
