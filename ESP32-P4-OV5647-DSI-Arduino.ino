@@ -1,5 +1,7 @@
 #include <Arduino.h>
 #include <Arduino_GFX_Library.h>
+#include "driver/isp_ccm.h"
+#include "driver/isp_demosaic.h"
 #include "driver/i2c_master.h"
 #include "driver/isp.h"
 #include "esp_cam_ctlr.h"
@@ -287,11 +289,43 @@ static bool init_camera_pipeline()
     .has_line_end_packet = false,
     .h_res = CAM_WIDTH,
     .v_res = CAM_HEIGHT,
+    .bayer_order = COLOR_RAW_ELEMENT_ORDER_GBRG,
   };
 
   err = esp_isp_new_processor(&isp_config, &s_isp_handle);
   if (err != ESP_OK) {
     Serial.printf("[CAM] esp_isp_new_processor failed: %s\n", esp_err_to_name(err));
+    return false;
+  }
+
+  esp_isp_demosaic_config_t demosaic_config = {};
+  demosaic_config.grad_ratio.integer = 1;
+  err = esp_isp_demosaic_configure(s_isp_handle, &demosaic_config);
+  if (err != ESP_OK) {
+    Serial.printf("[CAM] demosaic config failed: %s\n", esp_err_to_name(err));
+    return false;
+  }
+
+  err = esp_isp_demosaic_enable(s_isp_handle);
+  if (err != ESP_OK) {
+    Serial.printf("[CAM] demosaic enable failed: %s\n", esp_err_to_name(err));
+    return false;
+  }
+
+  esp_isp_ccm_config_t ccm_config = {};
+  ccm_config.matrix[0][0] = 1.0f;
+  ccm_config.matrix[1][1] = 1.0f;
+  ccm_config.matrix[2][2] = 1.0f;
+  ccm_config.saturation = true;
+  err = esp_isp_ccm_configure(s_isp_handle, &ccm_config);
+  if (err != ESP_OK) {
+    Serial.printf("[CAM] CCM config failed: %s\n", esp_err_to_name(err));
+    return false;
+  }
+
+  err = esp_isp_ccm_enable(s_isp_handle);
+  if (err != ESP_OK) {
+    Serial.printf("[CAM] CCM enable failed: %s\n", esp_err_to_name(err));
     return false;
   }
 
